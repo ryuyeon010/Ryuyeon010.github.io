@@ -1,0 +1,203 @@
+/* Base layout */
+:root {
+  --bg-0: #0c0d1a;
+  --bg-1: #121431;
+  --text: #e9ecf1;
+  --muted: #a8afbd;
+
+  --c1: #ff6ec7; /* pink */
+  --c2: #00d2ff; /* cyan */
+  --c3: #7bff00; /* lime */
+  --c4: #ffb86b; /* peach */
+  --c5: #805dff; /* violet */
+
+  --blob-size-min: 260px;
+  --blob-size-max: 46vw;
+  --blur: 60px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+}
+
+html {
+  background: linear-gradient(180deg, var(--bg-0), var(--bg-1));
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Noto Sans KR, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji",
+    "Segoe UI Emoji";
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+.background {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* Floating color blobs */
+.blob {
+  position: absolute;
+  width: clamp(var(--blob-size-min), var(--blob-size-max), 680px);
+  height: clamp(var(--blob-size-min), var(--blob-size-max), 680px);
+  border-radius: 50%;
+  filter: blur(var(--blur));
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+}
+
+.blob-1 {
+  left: -10vmin;
+  top: -10vmin;
+  background: radial-gradient(circle at 30% 30%, var(--c1), rgba(255, 110, 199, 0) 60%);
+  animation: float-1 38s ease-in-out infinite;
+}
+
+.blob-2 {
+  right: -18vmin;
+  top: 10vmin;
+  background: radial-gradient(circle at 70% 40%, var(--c2), rgba(0, 210, 255, 0) 60%);
+  animation: float-2 44s ease-in-out infinite;
+}
+
+.blob-3 {
+  left: 20vmin;
+  bottom: -14vmin;
+  background: radial-gradient(circle at 40% 60%, var(--c3), rgba(123, 255, 0, 0) 60%);
+  animation: float-3 50s ease-in-out infinite;
+}
+
+.blob-4 {
+  right: 8vmin;
+  bottom: -22vmin;
+  background: radial-gradient(circle at 60% 60%, var(--c4), rgba(255, 184, 107, 0) 60%);
+  animation: float-4 46s ease-in-out infinite;
+}
+
+.blob-5 {
+  left: 45vmin;
+  top: 35vmin;
+  background: radial-gradient(circle at 50% 50%, var(--c5), rgba(128, 93, 255, 0) 60%);
+  animation: float-5 52s ease-in-out infinite;
+}
+
+@keyframes float-1 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  25% { transform: translate3d(6vmin, 4vmin, 0) scale(1.05); }
+  50% { transform: translate3d(2vmin, 10vmin, 0) scale(0.98); }
+  75% { transform: translate3d(-4vmin, 6vmin, 0) scale(1.03); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes float-2 {
+  0% { transform: translate3d(0, 0, 0) scale(1.02); }
+  20% { transform: translate3d(-4vmin, 6vmin, 0) scale(1.06); }
+  50% { transform: translate3d(-10vmin, 2vmin, 0) scale(1.00); }
+  80% { transform: translate3d(-6vmin, -2vmin, 0) scale(0.96); }
+  100% { transform: translate3d(0, 0, 0) scale(1.02); }
+}
+
+@keyframes float-3 {
+  0% { transform: translate3d(0, 0, 0) scale(0.98); }
+  30% { transform: translate3d(4vmin, -6vmin, 0) scale(1.03); }
+  60% { transform: translate3d(-2vmin, -8vmin, 0) scale(1.06); }
+  100% { transform: translate3d(0, 0, 0) scale(0.98); }
+}
+
+@keyframes float-4 {
+  0% { transform: translate3d(0, 0, 0) scale(1.04); }
+  25% { transform: translate3d(2vmin, -6vmin, 0) scale(1.00); }
+  65% { transform: translate3d(-4vmin, -4vmin, 0) scale(0.97); }
+  100% { transform: translate3d(0, 0, 0) scale(1.04); }
+}
+
+@keyframes float-5 {
+  0% { transform: translate3d(0, 0, 0) scale(0.94); }
+  35% { transform: translate3d(-6vmin, 6vmin, 0) scale(1.01); }
+  70% { transform: translate3d(8vmin, 2vmin, 0) scale(1.08); }
+  100% { transform: translate3d(0, 0, 0) scale(0.94); }
+}
+
+/* Ripple wave layer - triggered occasionally */
+.ripple {
+  position: absolute;
+  inset: -20vmin; /* extra bleed for scaling */
+  background: radial-gradient(circle at 50% 55%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.08) 18%, rgba(255, 255, 255, 0) 60%);
+  opacity: 0;
+  transform: scale(0.85);
+  pointer-events: none;
+}
+
+body.is-waving .ripple {
+  animation: ripple-pulse 3400ms ease-out forwards;
+}
+
+@keyframes ripple-pulse {
+  0% { opacity: 0.0; transform: scale(0.8); filter: blur(0px); }
+  8% { opacity: 0.22; }
+  45% { opacity: 0.12; }
+  100% { opacity: 0; transform: scale(2.2); filter: blur(6px); }
+}
+
+/* Content */
+.content {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 10vmin 6vmin 16vmin;
+}
+
+.header { text-align: center; margin-bottom: 2rem; }
+.title { font-size: clamp(1.8rem, 4vw, 3rem); margin: 0 0 .25rem; }
+.subtitle { margin: 0; color: var(--muted); }
+
+.controls {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  backdrop-filter: blur(8px) saturate(120%);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .5rem;
+}
+
+.toggle { display: inline-flex; align-items: center; gap: .75rem; cursor: pointer; user-select: none; }
+.toggle input { appearance: none; width: 44px; height: 26px; border-radius: 999px; position: relative; outline: none; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.15); transition: background .2s ease, border-color .2s ease; }
+.toggle input::after { content: ""; position: absolute; inset: 3px; width: 20px; height: 20px; border-radius: 50%; background: white; transform: translateX(0); transition: transform .22s cubic-bezier(.2,.8,.2,1), background .2s ease; }
+.toggle input:checked { background: linear-gradient(135deg, #47d5ff, #7e7bff); border-color: transparent; }
+.toggle input:checked::after { transform: translateX(18px); background: #0b0b13; }
+.toggle .label { font-weight: 600; }
+.hint { margin: 0; font-size: .9rem; color: var(--muted); }
+
+.info { margin-top: 2rem; color: var(--muted); text-align: center; }
+.info ul { list-style: none; margin: 0; padding: 0; display: inline-flex; flex-direction: column; gap: .25rem; }
+.info li::before { content: "• "; color: #9abaff; }
+
+/* Animation master switch via attribute */
+html[data-animations="off"] .blob,
+html[data-animations="off"] .ripple {
+  animation-play-state: paused !important;
+}
+
+html[data-animations="off"] .blob { opacity: 0.18; }
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .blob { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+  .ripple { animation: none !important; }
+}

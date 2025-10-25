@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko" data-animations="on">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Animated Page — Checkbox Reactive</title>
+    <meta name="description" content="Checkbox-controlled floating colors with occasional wave animation." />
+    <link rel="preload" href="./styles.css" as="style" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+      <div class="blob blob-4"></div>
+      <div class="blob blob-5"></div>
+      <div class="ripple" id="ripple-layer"></div>
+    </div>
+
+    <main class="content" role="main">
+      <header class="header">
+        <h1 class="title">색상이 부유하는 페이지</h1>
+        <p class="subtitle">체크 박스로 애니메이션을 제어할 수 있어요.</p>
+      </header>
+
+      <section class="controls" aria-label="애니메이션 설정">
+        <label class="toggle" for="animationToggle">
+          <input type="checkbox" id="animationToggle" />
+          <span class="label">애니메이션 켜기/끄기</span>
+        </label>
+        <p class="hint">애니메이션 상태는 브라우저에 저장되어 다음 방문에도 유지됩니다.</p>
+      </section>
+
+      <section class="info">
+        <ul>
+          <li>배경: 여러 색상 블롭이 천천히 부유합니다.</li>
+          <li>파도: 때때로 은은한 파동(ripple)이 퍼져 나갑니다.</li>
+          <li>체크 박스: 애니메이션 전체를 켜거나 끕니다.</li>
+        </ul>
+      </section>
+    </main>
+
+    <script defer src="./script.js"></script>
+  </body>
+</html>
