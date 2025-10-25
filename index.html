@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Emotion Space</title>
+  <meta name="description" content="감정을 체크하고 기록하는 공간" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <h1 class="site-title">Emotion Space</h1>
+  </header>
+
+  <main id="main" class="content" role="main" tabindex="-1">
+    <section>
+      <h2 class="visually-hidden">소개</h2>
+      <p>오늘의 감정을 선택해보세요.</p>
+    </section>
+  </main>
+
+  <form class="emotion-bar" aria-label="감정 선택" role="group">
+    <div class="emotion-list" id="emotion-list">
+      <label class="emotion-chip">
+        <input type="checkbox" name="emotions" value="기쁨" />
+        <span>기쁨</span>
+      </label>
+      <label class="emotion-chip">
+        <input type="checkbox" name="emotions" value="슬픔" />
+        <span>슬픔</span>
+      </label>
+      <label class="emotion-chip">
+        <input type="checkbox" name="emotions" value="분노" />
+        <span>분노</span>
+      </label>
+      <label class="emotion-chip">
+        <input type="checkbox" name="emotions" value="놀람" />
+        <span>놀람</span>
+      </label>
+      <label class="emotion-chip">
+        <input type="checkbox" name="emotions" value="두려움" />
+        <span>두려움</span>
+      </label>
+      <label class="emotion-chip">
+        <input type="checkbox" name="emotions" value="평온" />
+        <span>평온</span>
+      </label>
+      <label class="emotion-chip">
+        <input type="checkbox" name="emotions" value="피곤" />
+        <span>피곤</span>
+      </label>
+      <label class="emotion-chip">
+        <input type="checkbox" name="emotions" value="스트레스" />
+        <span>스트레스</span>
+      </label>
+    </div>
+
+    <button type="button" class="save-button" id="save-emotions" aria-label="감정 저장">
+      저장
+    </button>
+  </form>
+
+  <script src="./script.js" defer></script>
+</body>
+</html>
