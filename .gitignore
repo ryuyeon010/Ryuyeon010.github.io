@@ -27,3 +27,7 @@ doc/api/
 
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# --- GitHub Pages site exceptions ---
+# Allow our hand-written site JS entry even though *.js is ignored
+!script.js
