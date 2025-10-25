@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Emotion Space</title>
+    <meta name="description" content="Emotion Space - 감정의 공간" />
+    <style>
+      :root {
+        --bg: #0f172a;       /* slate-900 */
+        --panel: #111827;    /* gray-900 */
+        --text: #e5e7eb;     /* gray-200 */
+        --muted: #9ca3af;    /* gray-400 */
+        --brand: #8b5cf6;    /* violet-500 */
+        --brand-acc: #a78bfa;/* violet-400 */
+        --border: #1f2937;   /* gray-800 */
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji",
+          "Segoe UI Emoji";
+        background: radial-gradient(1200px 800px at 80% -10%, rgba(139,92,246,0.12), transparent 60%),
+                    radial-gradient(1000px 700px at -10% 30%, rgba(59,130,246,0.10), transparent 60%),
+                    var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(8px);
+        background: linear-gradient(to bottom, rgba(17,24,39,0.8), rgba(17,24,39,0.4));
+        border-bottom: 1px solid var(--border);
+      }
+      .container {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 64px;
+      }
+      .brand {
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: var(--text);
+        text-decoration: none;
+        letter-spacing: 0.2px;
+      }
+      .brand .accent {
+        color: var(--brand-acc);
+      }
+      .brand:hover { opacity: 0.9; }
+      main {
+        display: grid;
+        place-items: center;
+        min-height: calc(100vh - 64px);
+        padding: 48px 20px 64px;
+      }
+      .panel {
+        width: 100%;
+        background: linear-gradient(180deg, rgba(17,24,39,0.8), rgba(17,24,39,0.6));
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        line-height: 1.2;
+      }
+      p.lead {
+        margin: 0 0 24px;
+        color: var(--muted);
+        font-size: 1.05rem;
+      }
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(59,130,246,0.18));
+        color: var(--text);
+        border: 1px solid rgba(139,92,246,0.35);
+        text-decoration: none;
+        transition: transform 0.08s ease, filter 0.2s ease;
+      }
+      .cta:hover { filter: brightness(1.06); }
+      .cta:active { transform: translateY(1px); }
+      .meta {
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      footer {
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        padding: 18px 0 28px;
+        text-align: center;
+      }
+      @media (max-width: 640px) {
+        .panel { padding: 28px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <nav class="nav">
+          <!-- Clicking the brand takes you to the homepage (/) -->
+          <a class="brand" href="./" aria-label="홈으로 이동">
+            Emotion <span class="accent">Space</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <section class="panel" aria-label="인트로 영역">
+          <h1>Emotion Space</h1>
+          <p class="lead">감정이 머무는 곳, 당신만의 공간.</p>
+          <a class="cta" href="./" aria-label="홈으로 이동">
+            홈으로 이동
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <div class="meta">페이지 제목과 홈페이지 이름이 모두 "Emotion Space"로 설정되었습니다.</div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">© <span id="year"></span> Emotion Space</div>
+    </footer>
+
+    <script>
+      // Keep the footer year current
+      document.getElementById('year').textContent = new Date().getFullYear();
+      // Ensure the document title stays correct if manipulated elsewhere
+      if (document.title !== 'Emotion Space') {
+        document.title = 'Emotion Space';
+      }
+    </script>
+  </body>
+</html>
