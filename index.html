@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>감정 비 • 오늘의 기분</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel-bg:rgba(255,255,255,.08);
+      --panel-border:rgba(255,255,255,.12);
+      --text:#e7ecf3;
+      --muted:#a7b0c0;
+      --accent:#60a5fa;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 20% -10%, #1a2340 0%, #0b1020 60%, #070a16 100%);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Helvetica Neue', Arial, sans-serif;
+      overflow:hidden;
+    }
+    .app{display:grid;grid-template-rows:auto auto 1fr;height:100%}
+    header{padding:20px 24px 8px}
+    h1{font-size:1.25rem;margin:0 0 6px 0;font-weight:700;letter-spacing:-.01em}
+    .subtitle{color:var(--muted);font-size:.95rem}
+    .panel{
+      margin:8px 16px;
+      background:var(--panel-bg);
+      border:1px solid var(--panel-border);
+      border-radius:14px;
+      padding:12px 14px;
+      backdrop-filter: blur(6px);
+    }
+    .controls{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center}
+    .density{display:flex;align-items:center;gap:12px}
+    .density input[type="range"]{width:220px}
+    .btn{
+      background:transparent;border:1px solid var(--panel-border);color:var(--text);
+      padding:8px 12px;border-radius:10px;cursor:pointer;transition:background .2s,border-color .2s
+    }
+    .btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22)}
+    .emotions{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px 12px}
+    .chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--panel-border);padding:8px 10px;border-radius:999px;cursor:pointer;user-select:none;transition:transform .06s ease, background .2s ease, border-color .2s ease}
+    .chip:hover{transform:translateY(-1px)}
+    .chip input{accent-color:var(--accent)}
+    .chip .swatch{width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.5);flex-shrink:0}
+    .sky{position:relative;overflow:hidden;height:100%}
+    #sky-layer{position:absolute;inset:0;pointer-events:none;contain:layout paint}
+    .emotion-word{
+      position:absolute;top:-10vh;left:0;will-change:transform,opacity;opacity:0;font-weight:700;
+      text-shadow:0 1px 0 rgba(0,0,0,.2), 0 6px 16px rgba(0,0,0,.4);
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,.2));
+      white-space:nowrap;mix-blend-mode:screen;
+      animation-name:fall;animation-duration:var(--fall-dur,9s);
+      animation-timing-function:cubic-bezier(.22,.61,.36,1);animation-iteration-count:1;animation-fill-mode:forwards
+    }
+    @keyframes fall{
+      0%{transform:translateY(-10vh) translateX(0) rotate(var(--rot,0deg));opacity:0}
+      8%{opacity:.9}
+      100%{transform:translateY(115vh) translateX(var(--drift,0px)) rotate(var(--rot,0deg));opacity:.15}
+    }
+    .legend{display:flex;flex-wrap:wrap;gap:10px;color:var(--muted);font-size:.85rem;margin-top:6px}
+    .hint{color:var(--muted);font-size:.85rem}
+    .value-badge{padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid var(--panel-border)}
+    footer{position:absolute;right:12px;bottom:8px;font-size:12px;color:#9fb3d2;opacity:.7}
+    @media (max-width:640px){.controls{grid-template-columns:1fr}.density input[type="range"]{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Q. 현재 기분을 한 단어로 표현한다면?</h1>
+      <div class="subtitle">체크박스를 선택하면, 해당 감정 단어가 화면에 비처럼 흩날려요.</div>
+    </header>
+
+    <section class="panel">
+      <div class="emotions" id="emotions"></div>
+      <div style="height:10px"></div>
+      <div class="controls">
+        <div class="density">
+          <label for="density"><span class="hint">밀도</span></label>
+          <input id="density" type="range" min="0" max="100" value="40" step="1" />
+          <span class="value-badge"><span id="densityValue">40</span>%</span>
+        </div>
+        <button id="clear" class="btn">모두 지우기</button>
+        <button id="randomize" class="btn">랜덤 선택</button>
+      </div>
+      <div class="legend">
+        <span>일반적 색상 연상: 행복·기쁨=노랑, 슬픔=파랑, 분노=빨강, 혐오=초록, 놀람=주황, 사랑=핑크, 평온=청록, 불안=보라, 지루함·피곤=회색 등</span>
+      </div>
+    </section>
+
+    <section class="sky">
+      <div id="sky-layer" aria-hidden="true"></div>
+    </section>
+    <footer>감정 비 • 단축키: [A] 모두 선택, [C] 지우기, [R] 랜덤</footer>
+  </div>
+
+  <script>
+    const EMOTIONS = [
+      { key: '행복', color: '#FFD54F' }, // warm yellow
+      { key: '기쁨', color: '#FFC107' }, // bright yellow
+      { key: '사랑', color: '#F06292' }, // pink
+      { key: '설렘', color: '#FF7043' }, // coral
+      { key: '놀람', color: '#FF9800' }, // orange
+      { key: '평온', color: '#26A69A' }, // teal
+      { key: '슬픔', color: '#42A5F5' }, // blue
+      { key: '외로움', color: '#5C6BC0' }, // indigo
+      { key: '분노', color: '#EF5350' }, // red
+      { key: '불안', color: '#7E57C2' }, // purple
+      { key: '혐오', color: '#66BB6A' }, // green
+      { key: '지루함', color: '#90A4AE' }, // grey-blue
+      { key: '피곤', color: '#78909C' }, // slate
+      { key: '감사', color: '#FBC02D' }, // amber
+      { key: '자신감', color: '#1976D2' }, // royal blue
+      { key: '부끄러움', color: '#F48FB1' }, // light pink
+      { key: '죄책감', color: '#8D6E63' }, // brown
+      { key: '후회', color: '#795548' }, // dark brown
+      { key: '스트레스', color: '#D32F2F' } // crimson
+    ];
+
+    const emotionsContainer = document.getElementById('emotions');
+    const densityInput = document.getElementById('density');
+    const densityValueEl = document.getElementById('densityValue');
+    const clearBtn = document.getElementById('clear');
+    const randomBtn = document.getElementById('randomize');
+    const sky = document.getElementById('sky-layer');
+
+    const selected = new Set();
+
+    function renderCheckboxes(){
+      const frag = document.createDocumentFragment();
+      EMOTIONS.forEach(({ key, color }) => {
+        const label = document.createElement('label');
+        label.className = 'chip';
+        label.title = key;
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.value = key;
+        input.setAttribute('aria-label', key);
+
+        const swatch = document.createElement('span');
+        swatch.className = 'swatch';
+        swatch.style.background = color;
+
+        const text = document.createElement('span');
+        text.textContent = key;
+
+        label.appendChild(input);
+        label.appendChild(swatch);
+        label.appendChild(text);
+
+        input.addEventListener('change', () => {
+          if (input.checked) selected.add(key); else selected.delete(key);
+        });
+
+        frag.appendChild(label);
+      });
+      emotionsContainer.appendChild(frag);
+    }
+
+    renderCheckboxes();
+
+    function getColorForEmotion(word){
+      const found = EMOTIONS.find(e => e.key === word);
+      return found ? found.color : '#ffffff';
+    }
+
+    let lastSpawnAt = performance.now();
+    let spawnAccumulator = 0;
+
+    function mapDensityToWps(percent){
+      // 0..100 -> 0..14 words/sec (ease for low-end control)
+      const eased = Math.pow(percent / 100, 0.8);
+      return 14 * eased;
+    }
+
+    function spawnWord(){
+      if (selected.size === 0) return;
+      const choices = Array.from(selected);
+      const word = choices[Math.floor(Math.random() * choices.length)];
+
+      const el = document.createElement('div');
+      el.className = 'emotion-word';
+      el.textContent = word;
+
+      const color = getColorForEmotion(word);
+      el.style.color = color;
+
+      // Randomized properties
+      const left = Math.random() * 100; // vw
+      const fontSize = 14 + Math.random() * 28; // px
+      const fall = 6 + Math.random() * 8; // seconds
+      const drift = (-40 + Math.random() * 80) + 'px';
+      const rotate = (-8 + Math.random() * 16) + 'deg';
+
+      el.style.left = left + 'vw';
+      el.style.fontSize = fontSize + 'px';
+      el.style.setProperty('--fall-dur', fall + 's');
+      el.style.setProperty('--drift', drift);
+      el.style.setProperty('--rot', rotate);
+
+      el.addEventListener('animationend', () => { el.remove(); }, { once: true });
+      sky.appendChild(el);
+    }
+
+    function tick(now){
+      const delta = (now - lastSpawnAt) / 1000; // seconds
+      lastSpawnAt = now;
+
+      const densityPercent = Number(densityInput.value);
+      densityValueEl.textContent = densityPercent;
+
+      const wps = mapDensityToWps(densityPercent);
+      spawnAccumulator += wps * delta;
+
+      const toSpawn = Math.floor(spawnAccumulator);
+      for (let i = 0; i < toSpawn; i++) spawnWord();
+      spawnAccumulator -= toSpawn;
+
+      requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+
+    // Controls
+    clearBtn.addEventListener('click', () => {
+      emotionsContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = false; });
+      selected.clear();
+      sky.querySelectorAll('.emotion-word').forEach(el => el.remove());
+    });
+
+    randomBtn.addEventListener('click', () => {
+      const count = 3 + Math.floor(Math.random() * 4); // 3~6개
+      const shuffled = EMOTIONS.slice().sort(() => Math.random() - 0.5);
+      const picked = new Set(shuffled.slice(0, count).map(e => e.key));
+
+      emotionsContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.checked = picked.has(cb.value);
+        if (cb.checked) selected.add(cb.value); else selected.delete(cb.value);
+      });
+    });
+
+    // Keyboard shortcuts
+    window.addEventListener('keydown', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'c') {
+        clearBtn.click();
+      } else if (k === 'a') {
+        emotionsContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = true; selected.add(cb.value); });
+      } else if (k === 'r') {
+        randomBtn.click();
+      }
+    });
+
+    // Limit on-screen nodes for performance
+    const MAX_NODES = 300;
+    const observer = new MutationObserver(() => {
+      const nodes = sky.querySelectorAll('.emotion-word');
+      if (nodes.length > MAX_NODES) {
+        for (let i = 0; i < nodes.length - MAX_NODES; i++) nodes[i].remove();
+      }
+    });
+    observer.observe(sky, { childList: true });
+  </script>
+</body>
+</html>
