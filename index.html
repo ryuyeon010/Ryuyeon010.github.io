@@ -99,6 +99,27 @@
       body{overflow:auto}
       main{min-height:70vh}
     }
+
+    /* Generator modal */
+    .gen-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter: blur(2px);display:grid;place-items:center;z-index:100}
+    .gen-modal{width:min(1100px,92vw);max-height:90vh;display:flex;flex-direction:column;gap:12px;background:var(--panel-bg);border:1px solid var(--panel-border);border-radius:16px;padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+    .gen-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .gen-header h2{margin:0;font-size:1.2rem}
+    .gen-actions{display:flex;align-items:center;gap:8px}
+    .gen-body{display:grid;grid-template-columns:320px 1fr;gap:12px}
+    .gen-controls{display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--panel-border);border-radius:12px;padding:10px;overflow:auto}
+    .control{display:flex;flex-direction:column;gap:6px}
+    .control.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .control.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .control.actions{display:flex;flex-direction:row;gap:8px;justify-content:flex-end}
+    .seg{display:flex;gap:10px;align-items:center}
+    .gen-canvas-wrap{background:rgba(255,255,255,.04);border:1px solid var(--panel-border);border-radius:12px;padding:10px;overflow:auto;display:flex;align-items:center;justify-content:center}
+    #blendCanvas{width:100%;height:auto;max-height:70vh;border-radius:8px;background:transparent}
+    .gen-controls textarea{min-height:86px;resize:vertical;border-radius:12px;border:1px solid var(--panel-border);background:rgba(0,0,0,.25);color:var(--text);padding:8px;outline:none}
+    .gen-controls input[type="text"], .gen-controls input[type="number"]{border-radius:10px;border:1px solid var(--panel-border);background:rgba(0,0,0,.25);color:var(--text);padding:8px;outline:none}
+    .gen-controls input[type="range"]{width:100%}
+    .hint{color:var(--muted);font-size:.8rem}
+    @media (max-width: 980px){.gen-body{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -148,6 +169,7 @@
         </div>
         <div>
           <button id="todayBtn" class="btn">오늘</button>
+          <button id="openGenerator" class="btn primary" title="파도 블렌딩 텍스트 이미지 생성기 열기">이미지 생성기</button>
         </div>
       </div>
 
@@ -166,6 +188,95 @@
 
       <footer>영감: 유연 작가 ‘space no.002’ — 색감과 분위기만 차용했어요.</footer>
     </main>
+  </div>
+
+  <!-- Wave Text Color Blending Generator (Modal) -->
+  <div id="generatorOverlay" class="gen-overlay" aria-hidden="true" hidden>
+    <div class="gen-modal" role="dialog" aria-modal="true" aria-labelledby="genTitle">
+      <div class="gen-header">
+        <div>
+          <h2 id="genTitle">파도 블렌딩 텍스트 이미지 생성기</h2>
+          <div class="subtitle">텍스트마다 색을 주고, 파도치듯 블렌딩하여 PNG로 저장</div>
+        </div>
+        <div class="gen-actions">
+          <button id="genClose" class="btn" aria-label="닫기">닫기</button>
+        </div>
+      </div>
+
+      <div class="gen-body">
+        <section class="gen-controls" aria-label="설정">
+          <div class="control">
+            <label for="genText">텍스트</label>
+            <textarea id="genText" spellcheck="false" placeholder="예) MIT에서 영감을 받은 컬러 파도 — 텍스트가 물결처럼 섞여요"></textarea>
+          </div>
+          <div class="control grid-2">
+            <div>
+              <label>토큰화</label>
+              <div class="seg">
+                <label><input type="radio" name="genTokenMode" value="word" checked> 단어</label>
+                <label><input type="radio" name="genTokenMode" value="char"> 글자</label>
+              </div>
+            </div>
+            <div>
+              <label for="genFontSize">글자 크기</label>
+              <input id="genFontSize" type="range" min="18" max="120" value="56">
+            </div>
+          </div>
+          <div class="control grid-3">
+            <div>
+              <label for="genWidth">가로(px)</label>
+              <input id="genWidth" type="number" min="320" max="4096" value="1280">
+            </div>
+            <div>
+              <label for="genHeight">세로(px)</label>
+              <input id="genHeight" type="number" min="240" max="4096" value="720">
+            </div>
+            <div>
+              <label for="genBg">배경</label>
+              <input id="genBg" type="color" value="#0b1020" title="배경색">
+            </div>
+          </div>
+          <div class="control">
+            <label for="genPalette">팔레트 (쉼표로 구분된 HEX)</label>
+            <input id="genPalette" type="text" value="#ff6b6b,#f7b267,#ffd166,#06d6a0,#4ecdc4,#80b1ff,#b388eb,#ff8fab">
+            <div class="hint">예: #ff6b6b,#ffd166,#06d6a0</div>
+          </div>
+          <div class="control grid-3">
+            <div>
+              <label for="genAmp">파도 높이</label>
+              <input id="genAmp" type="range" min="0" max="140" value="36">
+            </div>
+            <div>
+              <label for="genFreq">파도 횟수</label>
+              <input id="genFreq" type="range" min="1" max="12" value="4">
+            </div>
+            <div>
+              <label for="genSpeed">속도</label>
+              <input id="genSpeed" type="range" min="0" max="200" value="60">
+            </div>
+          </div>
+          <div class="control grid-2">
+            <div>
+              <label for="genLayers">블렌딩 레이어</label>
+              <input id="genLayers" type="range" min="1" max="8" value="3">
+            </div>
+            <div class="seg">
+              <label><input id="genAnimate" type="checkbox" checked> 애니메이션</label>
+              <label><input id="genAA" type="checkbox" checked> 안티앨리어싱</label>
+            </div>
+          </div>
+          <div class="control actions">
+            <button id="genRandomize" class="btn">색상 섞기</button>
+            <button id="genReset" class="btn">초기화</button>
+            <button id="genExport" class="btn primary">PNG 저장</button>
+          </div>
+        </section>
+
+        <section class="gen-canvas-wrap" aria-label="미리보기">
+          <canvas id="blendCanvas"></canvas>
+        </section>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -581,6 +692,287 @@
 
     initSpace();
     draw();
+
+    // ------------------------------
+    // Wave Text Color Blend Generator
+    // ------------------------------
+    const openGenBtn = document.getElementById('openGenerator');
+    const overlayEl = document.getElementById('generatorOverlay');
+    const genCloseBtn = document.getElementById('genClose');
+
+    const genTextEl = document.getElementById('genText');
+    const genFontSizeEl = document.getElementById('genFontSize');
+    const genWidthEl = document.getElementById('genWidth');
+    const genHeightEl = document.getElementById('genHeight');
+    const genBgEl = document.getElementById('genBg');
+    const genPaletteEl = document.getElementById('genPalette');
+    const genAmpEl = document.getElementById('genAmp');
+    const genFreqEl = document.getElementById('genFreq');
+    const genSpeedEl = document.getElementById('genSpeed');
+    const genLayersEl = document.getElementById('genLayers');
+    const genAnimateEl = document.getElementById('genAnimate');
+    const genAAEl = document.getElementById('genAA');
+    const genRandomizeBtn = document.getElementById('genRandomize');
+    const genResetBtn = document.getElementById('genReset');
+    const genExportBtn = document.getElementById('genExport');
+    const blendCanvas = document.getElementById('blendCanvas');
+    const blendCtx = blendCanvas.getContext('2d');
+
+    const tokenModeEls = Array.from(document.querySelectorAll('input[name="genTokenMode"]'));
+
+    let genState = {
+      tokenMode: 'word',
+      fontSize: 56,
+      width: 1280,
+      height: 720,
+      background: '#0b1020',
+      palette: ['#ff6b6b','#f7b267','#ffd166','#06d6a0','#4ecdc4','#80b1ff','#b388eb','#ff8fab'],
+      amplitude: 36,
+      waves: 4,
+      speed: 60, // deg/sec
+      layers: 3,
+      animate: true,
+      antialias: true,
+      time: 0,
+      lastTick: 0,
+      mappingSeed: 1,
+    };
+
+    function parsePalette(input){
+      return input.split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(s => s.startsWith('#') ? s : ('#'+s));
+    }
+
+    function seededRandom(seed){
+      let t = seed >>> 0;
+      return function(){
+        // xorshift32
+        t ^= t << 13; t ^= t >>> 17; t ^= t << 5; // bitwise ok here
+        return ((t >>> 0) % 10000) / 10000;
+      };
+    }
+
+    function tokenizeText(text, mode){
+      const cleaned = text.replace(/\s+/g, ' ').trim();
+      if (!cleaned) return [];
+      if (mode === 'char') return Array.from(cleaned);
+      return cleaned.split(' ');
+    }
+
+    function layoutTokens(ctx2d, tokens, fontSize, maxWidth){
+      const margin = Math.max(24, Math.floor(fontSize*0.45));
+      const lineGap = Math.max(10, Math.floor(fontSize*0.28));
+      const baseline = Math.floor(fontSize*0.82);
+      const spaceWidth = ctx2d.measureText(' ').width;
+      const items = [];
+      let x = margin;
+      let y = margin + baseline;
+      for (let i=0;i<tokens.length;i++){
+        const t = tokens[i];
+        const w = ctx2d.measureText(t).width;
+        if (x + w > maxWidth - margin){
+          x = margin;
+          y += fontSize + lineGap;
+        }
+        items.push({ text: t, x, y, width: w });
+        x += w + spaceWidth;
+      }
+      let contentHeight = 0;
+      if (items.length){
+        const last = items[items.length-1];
+        contentHeight = last.y + Math.ceil(fontSize*0.2);
+      }
+      return { items, margin, contentHeight };
+    }
+
+    function assignColors(tokens, palette, seed){
+      if (tokens.length === 0) return [];
+      const rnd = seededRandom(seed);
+      const shuffled = palette.slice();
+      // shuffle
+      for (let i=shuffled.length-1; i>0; i--){
+        const j = Math.floor(rnd() * (i+1));
+        const tmp = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = tmp;
+      }
+      return tokens.map((_, i) => shuffled[i % shuffled.length]);
+    }
+
+    function setCanvasSize(w, h){
+      const dpr = genState.antialias ? Math.max(1, Math.min(2, window.devicePixelRatio||1)) : 1;
+      blendCanvas.style.width = w + 'px';
+      blendCanvas.style.height = h + 'px';
+      blendCanvas.width = Math.floor(w * dpr);
+      blendCanvas.height = Math.floor(h * dpr);
+      blendCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      blendCtx.imageSmoothingEnabled = true;
+      blendCtx.imageSmoothingQuality = 'high';
+    }
+
+    let cachedLayout = null;
+    let cachedTokens = [];
+    let cachedTokenColors = [];
+
+    function ensureLayout(){
+      const text = genTextEl.value;
+      const tokens = tokenizeText(text, genState.tokenMode);
+      cachedTokens = tokens;
+      blendCtx.font = `700 ${genState.fontSize}px 'Noto Sans KR', 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif`;
+      cachedLayout = layoutTokens(blendCtx, tokens, genState.fontSize, genState.width);
+      cachedTokenColors = assignColors(tokens, genState.palette, genState.mappingSeed);
+    }
+
+    function drawGeneratorFrame(ts){
+      if (!overlayEl || overlayEl.hidden) return; // don't render when closed
+      if (genState.lastTick === 0) genState.lastTick = ts;
+      const dt = (ts - genState.lastTick) / 1000;
+      genState.lastTick = ts;
+      if (genState.animate) genState.time += dt;
+
+      setCanvasSize(genState.width, genState.height);
+      ensureLayout();
+
+      // Background
+      blendCtx.clearRect(0, 0, genState.width, genState.height);
+      blendCtx.fillStyle = genState.background;
+      blendCtx.fillRect(0, 0, genState.width, genState.height);
+
+      // Base text (per-token color)
+      blendCtx.textBaseline = 'alphabetic';
+      blendCtx.font = `700 ${genState.fontSize}px 'Noto Sans KR', 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif`;
+      for (let i=0;i<cachedLayout.items.length;i++){
+        const it = cachedLayout.items[i];
+        blendCtx.fillStyle = cachedTokenColors[i % cachedTokenColors.length] || '#ffffff';
+        blendCtx.fillText(it.text, it.x, it.y);
+      }
+
+      // Wave overlay restricted to text shapes
+      blendCtx.globalCompositeOperation = 'source-atop';
+      const w = genState.width; const h = genState.height;
+      const centerY = Math.max(cachedLayout.margin + genState.fontSize, Math.min(h - cachedLayout.margin, h/2));
+      const k = (Math.PI * 2 * genState.waves) / Math.max(1, w);
+      const speedRad = (genState.speed/180) * Math.PI; // rad/sec
+      const baseAmp = genState.amplitude;
+      const layers = Math.max(1, Math.floor(genState.layers));
+      const band = Math.max(10, Math.floor(baseAmp*0.9 + 18));
+
+      for (let l=0; l<layers; l++){
+        const color = genState.palette[l % genState.palette.length] || '#ffffff';
+        const phase = (l / layers) * Math.PI * 2 + genState.time * speedRad;
+        const amp = baseAmp * (0.9 - l * (0.4/(layers||1)));
+        blendCtx.fillStyle = hexToRgba(color, 0.18);
+        blendCtx.beginPath();
+        blendCtx.moveTo(0, centerY + Math.sin(phase) * amp - band/2);
+        const step = Math.max(4, Math.floor(w/160));
+        for (let x=0; x<=w; x+= step){
+          const y = centerY + Math.sin(k*x + phase) * amp;
+          blendCtx.lineTo(x, y - band/2);
+        }
+        for (let x=w; x>=0; x-= step){
+          const y = centerY + Math.sin(k*x + phase) * amp;
+          blendCtx.lineTo(x, y + band/2);
+        }
+        blendCtx.closePath();
+        blendCtx.fill();
+      }
+
+      blendCtx.globalCompositeOperation = 'source-over';
+
+      if (genState.animate) requestAnimationFrame(drawGeneratorFrame);
+    }
+
+    function openGenerator(){
+      overlayEl.hidden = false;
+      overlayEl.setAttribute('aria-hidden', 'false');
+      // defaults
+      if (!genTextEl.value){
+        genTextEl.value = 'MIT에서 영감을 받은 컬러 파도 — 텍스트가 물결처럼 섞여요';
+      }
+      // initialize state from controls
+      syncStateFromControls();
+      genState.lastTick = 0; genState.time = 0;
+      requestAnimationFrame(drawGeneratorFrame);
+    }
+
+    function closeGenerator(){
+      overlayEl.hidden = true;
+      overlayEl.setAttribute('aria-hidden', 'true');
+    }
+
+    function syncStateFromControls(){
+      const tokenMode = tokenModeEls.find(r => r.checked)?.value || 'word';
+      genState.tokenMode = tokenMode;
+      genState.fontSize = clampInt(genFontSizeEl.value, 10, 240, 56);
+      genState.width = clampInt(genWidthEl.value, 320, 4096, 1280);
+      genState.height = clampInt(genHeightEl.value, 240, 4096, 720);
+      genState.background = genBgEl.value || '#0b1020';
+      const pal = parsePalette(genPaletteEl.value);
+      if (pal.length) genState.palette = pal;
+      genState.amplitude = clampInt(genAmpEl.value, 0, 300, 36);
+      genState.waves = clampInt(genFreqEl.value, 1, 24, 4);
+      genState.speed = clampInt(genSpeedEl.value, 0, 600, 60);
+      genState.layers = clampInt(genLayersEl.value, 1, 12, 3);
+      genState.animate = !!genAnimateEl.checked;
+      genState.antialias = !!genAAEl.checked;
+    }
+
+    function clampInt(v, min, max, def){
+      const n = parseInt(String(v), 10);
+      if (Number.isNaN(n)) return def;
+      return Math.min(max, Math.max(min, n));
+    }
+
+    function exportPNG(){
+      // render one frame (paused) then export
+      const wasAnimating = genState.animate;
+      genState.animate = false;
+      requestAnimationFrame((ts) => {
+        drawGeneratorFrame(ts);
+        const url = blendCanvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        const tsNow = new Date().toISOString().replace(/[:.]/g, '-');
+        a.href = url; a.download = `wave-text-${tsNow}.png`;
+        document.body.appendChild(a); a.click(); a.remove();
+        genState.animate = wasAnimating;
+      });
+    }
+
+    function randomizeColors(){
+      genState.mappingSeed = Math.floor(Math.random()*1e9);
+      // immediate redraw
+      requestAnimationFrame(drawGeneratorFrame);
+    }
+
+    function resetGenerator(){
+      genTextEl.value = '';
+      genFontSizeEl.value = '56';
+      genWidthEl.value = '1280';
+      genHeightEl.value = '720';
+      genBgEl.value = '#0b1020';
+      genPaletteEl.value = '#ff6b6b,#f7b267,#ffd166,#06d6a0,#4ecdc4,#80b1ff,#b388eb,#ff8fab';
+      genAmpEl.value = '36';
+      genFreqEl.value = '4';
+      genSpeedEl.value = '60';
+      genLayersEl.value = '3';
+      genAnimateEl.checked = true;
+      genAAEl.checked = true;
+      syncStateFromControls();
+      genState.mappingSeed = 1;
+      requestAnimationFrame(drawGeneratorFrame);
+    }
+
+    // Events
+    openGenBtn.addEventListener('click', openGenerator);
+    genCloseBtn.addEventListener('click', closeGenerator);
+    overlayEl.addEventListener('click', (e) => { if (e.target === overlayEl) closeGenerator(); });
+    [genTextEl, genFontSizeEl, genWidthEl, genHeightEl, genBgEl, genPaletteEl, genAmpEl, genFreqEl, genSpeedEl, genLayersEl, genAnimateEl, genAAEl]
+      .forEach(el => el.addEventListener('input', () => { syncStateFromControls(); requestAnimationFrame(drawGeneratorFrame); }));
+    tokenModeEls.forEach(r => r.addEventListener('change', () => { syncStateFromControls(); requestAnimationFrame(drawGeneratorFrame); }));
+    genRandomizeBtn.addEventListener('click', (e) => { e.preventDefault(); randomizeColors(); });
+    genResetBtn.addEventListener('click', (e) => { e.preventDefault(); resetGenerator(); });
+    genExportBtn.addEventListener('click', (e) => { e.preventDefault(); exportPNG(); });
+
   </script>
 </body>
 </html>
